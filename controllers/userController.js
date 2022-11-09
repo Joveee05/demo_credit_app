@@ -60,7 +60,9 @@ exports.topUp = catchAsync(async (req, res, next) => {
   const creditAccount = await knex('users')
     .where('id', '=', userId)
     .increment('balance', balance);
-
+  if (!creditAccount) {
+    return next(new AppError('No user found with the provided Id', 404));
+  }
   res.status(200).json({
     status: 'success',
     message: 'Deposit successful',
@@ -73,7 +75,9 @@ exports.withdrawFunds = catchAsync(async (req, res, next) => {
   const debitAccount = await knex('users')
     .where('id', '=', userId)
     .decrement('balance', balance);
-
+  if (!debitAccount) {
+    return next(new AppError('No user found with the provided Id', 404));
+  }
   res.status(200).json({
     status: 'success',
     message: 'Withdrawal successful',
@@ -84,7 +88,6 @@ exports.transferFunds = catchAsync(async (req, res, next) => {
   let to = req.body.to;
   let balance = req.body.amount;
   let from = req.body.from;
-
   const transfer = await knex('users')
     .where('email', '=', to)
     .increment('balance', balance)
@@ -96,6 +99,7 @@ exports.transferFunds = catchAsync(async (req, res, next) => {
   if (!transfer) {
     return next(new AppError('No user found with that email', 404));
   }
+
   res.status(200).json({
     status: 'success',
     message: 'Transfer successful',

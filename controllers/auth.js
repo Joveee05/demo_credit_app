@@ -45,17 +45,28 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return next(new AppError('Please enter email and password', 400));
-  }
-
-  const user = await knex('users')
-    .select('id', 'first_name', 'last_name', 'balance')
-    .where('email', '=', req.body.email);
-
-  createSendToken(user, 200, res);
+  const user = knex('users')
+    .where({ email: req.body.email })
+    .first()
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({
+          error: 'Incorrect email or password. Try again',
+        });
+      } else {
+        return bcrypt
+          .compare(req.body.password, user.password)
+          .then((isAuthenticated) => {
+            if (!isAuthenticated) {
+              res.status(400).json({
+                error: 'Incorrect email or password. Try again',
+              });
+            } else {
+              return createSendToken(user, 200, res);
+            }
+          });
+      }
+    });
 });
 
 exports.logout = (req, res) => {

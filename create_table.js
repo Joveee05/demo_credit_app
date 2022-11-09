@@ -7,7 +7,7 @@ knex.schema
     table.string('first_name').notNullable();
     table.string('last_name').notNullable();
     table.string('password').notNullable();
-    table.double('balance').notNullable().defaultTo(0.0);
+    table.double('balance').notNullable().defaultTo(0.0).checkNegative();
     table.timestamps(true, true);
   })
   .then(() => console.log('table created'))
