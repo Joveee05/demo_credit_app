@@ -1,11 +1,12 @@
 {
   "name": "lendsqr",
   "version": "1.0.0",
-  "description": "",
+  "description": "LendSqr Demo Credit",
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start:prod": "NODE_ENV=production nodemon server.js",
+    "test": "set NODE_ENV=test&& mocha test/*.js --exit"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +25,10 @@
     "path": "^0.12.7"
   },
   "devDependencies": {
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "eslint": "^8.27.0",
+    "mocha": "^10.1.0",
     "nodemon": "^2.0.20"
   }
 }
