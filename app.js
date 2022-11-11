@@ -6,6 +6,8 @@ const globalErrorHandler = require('./controllers/errorController');
 const cors = require('cors');
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoutes');
+const accountRouter = require('./routes/accountRoutes');
+const transactionRouter = require('./routes/transactionRoutes');
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 
 app.use('/api/v1/users/', userRouter);
+app.use('/api/v1/accounts/', accountRouter);
+app.use('/api/v1/transactions/', transactionRouter);
 
 app.use(globalErrorHandler);
 

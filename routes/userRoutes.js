@@ -7,17 +7,11 @@ router.post('/sign-up', authController.createUser);
 
 router.post('/login', authController.login);
 
-router.get('/', userController.getAllUsers);
-
 router.use(authController.protect);
 
+router.get('/', userController.getAllUsers);
+
 router.get('/logout', authController.logout);
-
-router.post('/deposit/:userId', userController.topUp);
-
-router.post('/withdraw/:userId', userController.withdrawFunds);
-
-router.post('/transfer', userController.transferFunds);
 
 router
   .route('/:userId')

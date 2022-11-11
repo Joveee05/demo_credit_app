@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { expect } = require('chai');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app');
@@ -15,7 +16,6 @@ describe('/sign-up users', () => {
       first_name: 'test',
       last_name: 'user',
       password: 'user123',
-      balance: '0',
     };
 
     chai
@@ -26,6 +26,7 @@ describe('/sign-up users', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');
+
         done();
       });
   });
