@@ -4,7 +4,7 @@ knex.schema
   .createTable('transactions', (table) => {
     table.increments('id');
     table.string('transactionType').notNullable();
-    table.integer('account_id').notNullable().unique();
+    table.integer('account_id').notNullable();
     table.float('amount').notNullable();
     table.timestamps(true, true);
   })

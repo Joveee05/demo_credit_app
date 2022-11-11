@@ -3,20 +3,14 @@ const knex = require('../database');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-const credit = 1;
-const debit = 0;
-
 async function insertDataIntoTransactionsTable(
   transactionType,
   amount,
   account_id,
   user_id
 ) {
-  const result = await knex('transactions').insert([
-    { transactionType },
-    { amount },
-    { account_id },
-  ]);
+  const add = { transactionType, amount, account_id };
+  const result = await knex('transactions').insert(add);
   if (result) {
     return true;
   } else {
@@ -25,21 +19,28 @@ async function insertDataIntoTransactionsTable(
 }
 
 exports.createAccount = catchAsync(async (req, res, next) => {
-  const { user_email, user_id } = req.body;
+  const add = {};
+  add.email = req.body.email;
+  add.users_id = req.params.userId;
   const user = await knex('users')
-    .where('id', '=', req.body.user_id)
+    .where('email', '=', req.body.email)
     .first()
     .then(async (user) => {
       if (user) {
-        return next(new AppError('User already exists', 404));
+        await knex('accounts').insert(add);
+        res.status(201).json({
+          status: 'success',
+          message: 'Account created successfully',
+        });
       } else {
-        await knex('accounts').insert(req.body);
+        return next(
+          new AppError(
+            'User email does not exist. Please sign up with your email',
+            400
+          )
+        );
       }
     });
-  res.status(201).json({
-    status: 'success',
-    message: 'Account created successfully',
-  });
 });
 
 exports.getAccount = catchAsync(async (req, res, next) => {
@@ -104,7 +105,7 @@ exports.deposit = catchAsync(async (req, res, next) => {
   if (!creditAccount) {
     return next(new AppError('No account found with that Id', 404));
   } else {
-    await insertDataIntoTransactionsTable(credit, amount, account_Id);
+    await insertDataIntoTransactionsTable('credit', amount, account_Id);
 
     if (true) {
       return res.status(200).json({
@@ -119,7 +120,6 @@ exports.deposit = catchAsync(async (req, res, next) => {
 
 exports.withdraw = catchAsync(async (req, res, next) => {
   const account_Id = req.params.accountId;
-  const user_id = req.body.id;
   const amount = req.body.amount;
   const debitAccount = await knex('accounts')
     .where('id', '=', account_Id)
@@ -127,7 +127,7 @@ exports.withdraw = catchAsync(async (req, res, next) => {
   if (!debitAccount) {
     return next(new AppError('No user found with the provided Id', 404));
   } else {
-    await insertDataIntoTransactionsTable(debit, amount, account_Id, user_id);
+    await insertDataIntoTransactionsTable('debit', amount, account_Id);
 
     if (true) {
       return res.status(200).json({
@@ -147,6 +147,7 @@ exports.transfer = catchAsync(async (req, res, next) => {
   const from = req.body.from;
   const transfer = await knex('accounts')
     .where('user_email', '=', to)
+    .andWhere('id', '=', account_Id)
     .increment('balance', amount)
     .then(
       await knex('accounts')
@@ -154,9 +155,9 @@ exports.transfer = catchAsync(async (req, res, next) => {
         .decrement('balance', amount)
     );
   if (!transfer) {
-    return next(new AppError('No user found with that email', 404));
+    return next(new AppError('No user found with that Id or email', 404));
   } else {
-    await insertDataIntoTransactionsTable(debit, amount, account_Id);
+    await insertDataIntoTransactionsTable('debit', amount, account_Id);
 
     if (true) {
       return res.status(200).json({

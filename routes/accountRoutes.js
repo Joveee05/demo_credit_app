@@ -8,7 +8,7 @@ router.use(authController.protect);
 
 router.get('/', accountController.getAllAccounts);
 
-router.post('/create-account', accountController.createAccount);
+router.post('/create-account/:userId', accountController.createAccount);
 
 router.post('/deposit/:accountId', accountController.deposit);
 
