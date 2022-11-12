@@ -7,7 +7,7 @@ const knex = require('../database');
 chai.use(chaiHttp);
 chai.should();
 
-describe('/GET accounts', () => {
+describe('/GET transactions', () => {
   it('It should GET all the transactions', (done) => {
     chai
       .request(app)

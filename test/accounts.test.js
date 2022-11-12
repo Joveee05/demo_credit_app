@@ -126,7 +126,7 @@ describe('/withdraw/:accountId accounts', () => {
 });
 
 describe('/transfer/:accountId accounts', () => {
-  it('It should send funds from one to another via users unique email', (done) => {
+  it('It should send funds from one user to another via users unique email', (done) => {
     const id = 28;
     let account = {
       users_id: 5,
