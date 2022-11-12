@@ -9,10 +9,8 @@ chai.use(chaiHttp);
 chai.should();
 
 describe('/sign-up users', () => {
-  it('it should create users', (done) => {
+  it('it should not create users without email', (done) => {
     let users = {
-      id: '1',
-      email: 'test@example.com',
       first_name: 'test',
       last_name: 'user',
       password: 'user123',
@@ -26,7 +24,27 @@ describe('/sign-up users', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');
+        done();
+      });
+  });
 
+  it('it should create users', (done) => {
+    let users = {
+      id: 1,
+      email: 'test@example.com',
+      firstName: 'test',
+      lastNme: 'user',
+      password: 'user123',
+    };
+
+    chai
+      .request(app)
+      .post('/api/v1/users/sign-up')
+      .set('content-type', 'application/json')
+      .send(users)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
         done();
       });
   });
@@ -104,61 +122,6 @@ describe('/DELETE/:id users', () => {
       .request(app)
       .delete('/api/v1/users/' + id)
       .set('content-type', 'application/json')
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-});
-
-describe('/deposit/:id users', () => {
-  it('It should add or increase user balance by amount in body', (done) => {
-    const id = 1;
-    let amount = '500';
-    chai
-      .request(app)
-      .post('/api/v1/users/deposit' + id)
-      .set('content-type', 'application/json')
-      .send(amount)
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-});
-
-describe('/withdraw/:id users', () => {
-  it('It should subtract or decrease user balance by amount in body', (done) => {
-    const id = 1;
-    let amount = '1000';
-    chai
-      .request(app)
-      .post('/api/v1/users/withdraw' + id)
-      .set('content-type', 'application/json')
-      .send(amount)
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        done();
-      });
-  });
-});
-
-describe('/transfer users', () => {
-  it('It should send funds from one to another via users unique email', (done) => {
-    const id = 1;
-    let user = {
-      from: 'test@example.com',
-      to: 'test2@example.com',
-      amount: '1000',
-    };
-    chai
-      .request(app)
-      .post('/api/v1/users/transfer')
-      .set('content-type', 'application/json')
-      .send(user)
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');

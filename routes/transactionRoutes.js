@@ -5,11 +5,13 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.get('/', transactionController.getAll);
+router.get('/', transactionController.getAllTransactions);
+
+router.get('/:userId', transactionController.getAllUserTransactions);
 
 router
   .route('/:trnId')
   .get(transactionController.getTransaction)
-  .delete(transactionController.deleteOne);
+  .delete(transactionController.deleteTransaction);
 
 module.exports = router;

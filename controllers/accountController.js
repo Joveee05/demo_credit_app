@@ -6,10 +6,10 @@ const catchAsync = require('../utils/catchAsync');
 async function insertDataIntoTransactionsTable(
   transactionType,
   amount,
-  account_id,
-  user_id
+  accounts_id,
+  users_id
 ) {
-  const add = { transactionType, amount, account_id };
+  const add = { transactionType, amount, accounts_id, users_id };
   const result = await knex('transactions').insert(add);
   if (result) {
     return true;
@@ -24,7 +24,7 @@ exports.createAccount = catchAsync(async (req, res, next) => {
   add.users_id = req.params.userId;
   const user = await knex('users')
     .where('email', '=', req.body.email)
-    .first()
+    .andWhere('id', '=', req.params.userId)
     .then(async (user) => {
       if (user) {
         await knex('accounts').insert(add);
@@ -35,7 +35,7 @@ exports.createAccount = catchAsync(async (req, res, next) => {
       } else {
         return next(
           new AppError(
-            'User email does not exist. Please sign up with your email',
+            'User does not exist. Please sign up with your email',
             400
           )
         );
@@ -46,7 +46,7 @@ exports.createAccount = catchAsync(async (req, res, next) => {
 exports.getAccount = catchAsync(async (req, res, next) => {
   let accountId = req.params.accountId;
   const account = await knex('accounts')
-    .select('id', 'user_email', 'user_id', 'balance')
+    .select('id', 'users_id', 'email', 'balance')
     .where('id', accountId);
   if (account.length === 0) {
     return next(new AppError('No acount found with that Id', 404));
@@ -60,8 +60,8 @@ exports.getAccount = catchAsync(async (req, res, next) => {
 exports.getAllAccounts = catchAsync(async (req, res, next) => {
   const accounts = await knex('accounts').select(
     'id',
-    'user_id',
-    'user_email',
+    'users_id',
+    'email',
     'balance'
   );
   res.status(200).json({
@@ -71,6 +71,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
   });
 });
 
+// This route would be implemented specifically for admins to manually update user account.
 // exports.updateAccount = catchAsync(async (req, res, next) => {
 //   const {} = req.body;
 //   const accountId = req.params.accountId;
@@ -97,15 +98,21 @@ exports.deleteAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.deposit = catchAsync(async (req, res, next) => {
-  const account_Id = req.params.accountId;
+  const accounts_id = req.params.accountId;
+  const users_id = req.body.users_id;
   const amount = req.body.amount;
   const creditAccount = await knex('accounts')
-    .where('id', '=', account_Id)
+    .where('users_id', '=', users_id)
     .increment('balance', amount);
   if (!creditAccount) {
-    return next(new AppError('No account found with that Id', 404));
+    return next(new AppError('No account or user found ', 404));
   } else {
-    await insertDataIntoTransactionsTable('credit', amount, account_Id);
+    await insertDataIntoTransactionsTable(
+      'credit',
+      amount,
+      accounts_id,
+      users_id
+    );
 
     if (true) {
       return res.status(200).json({
@@ -119,15 +126,21 @@ exports.deposit = catchAsync(async (req, res, next) => {
 });
 
 exports.withdraw = catchAsync(async (req, res, next) => {
-  const account_Id = req.params.accountId;
+  const accounts_id = req.params.accountId;
   const amount = req.body.amount;
+  const users_id = req.body.users_id;
   const debitAccount = await knex('accounts')
-    .where('id', '=', account_Id)
+    .where('id', '=', accounts_id)
     .decrement('balance', amount);
   if (!debitAccount) {
-    return next(new AppError('No user found with the provided Id', 404));
+    return next(new AppError('No account found with the provided Id', 404));
   } else {
-    await insertDataIntoTransactionsTable('debit', amount, account_Id);
+    await insertDataIntoTransactionsTable(
+      'debit',
+      amount,
+      accounts_id,
+      users_id
+    );
 
     if (true) {
       return res.status(200).json({
@@ -141,23 +154,29 @@ exports.withdraw = catchAsync(async (req, res, next) => {
 });
 
 exports.transfer = catchAsync(async (req, res, next) => {
-  const account_Id = req.params.accountId;
+  const accounts_id = req.params.accountId;
+  const users_id = req.body.users_id;
   const to = req.body.to;
   const amount = req.body.amount;
   const from = req.body.from;
   const transfer = await knex('accounts')
-    .where('user_email', '=', to)
-    .andWhere('id', '=', account_Id)
-    .increment('balance', amount)
+    .where('email', '=', from)
+    .andWhere('id', '=', accounts_id)
+    .decrement('balance', amount)
     .then(
       await knex('accounts')
-        .where('user_email', '=', from)
-        .decrement('balance', amount)
+        .where('email', '=', to)
+        .increment('balance', amount)
     );
   if (!transfer) {
     return next(new AppError('No user found with that Id or email', 404));
   } else {
-    await insertDataIntoTransactionsTable('debit', amount, account_Id);
+    await insertDataIntoTransactionsTable(
+      'debit',
+      amount,
+      accounts_id,
+      users_id
+    );
 
     if (true) {
       return res.status(200).json({

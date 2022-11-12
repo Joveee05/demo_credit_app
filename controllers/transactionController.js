@@ -16,11 +16,12 @@ exports.getTransaction = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAll = catchAsync(async (req, res, next) => {
+exports.getAllTransactions = catchAsync(async (req, res, next) => {
   const trn = await knex('transactions').select(
     'id',
     'transactionType',
-    'account_id',
+    'accounts_id',
+    'users_id',
     'amount'
   );
   res.status(200).json({
@@ -30,7 +31,7 @@ exports.getAll = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteOne = catchAsync(async (req, res, next) => {
+exports.deleteTransaction = catchAsync(async (req, res, next) => {
   let trnId = req.params.trnId;
   const trn = await knex('transactions').where('id', trnId).del();
   if (!trn) {
@@ -38,5 +39,18 @@ exports.deleteOne = catchAsync(async (req, res, next) => {
   }
   res.status(204).json({
     data: null,
+  });
+});
+
+exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
+  const userId = req.params.userId;
+  const user = await knex('transactions').where('users_id', userId);
+  if (!user) {
+    return next(new AppError('No user transaction  history found', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    results: user.length,
+    data: user,
   });
 });
