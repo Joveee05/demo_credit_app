@@ -54,7 +54,7 @@ describe('/GET/:userId transactions', () => {
     const id = 4;
     chai
       .request(app)
-      .get('/api/v1/transactions/' + id)
+      .get('/api/v1/transactions/myTransactions' + id)
       .set('content-type', 'application/json')
       .end((err, res) => {
         res.should.have.status(200);
