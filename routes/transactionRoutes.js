@@ -7,11 +7,14 @@ router.use(authController.protect);
 
 router.get('/', transactionController.getAllTransactions);
 
-router.get('/:userId', transactionController.getAllUserTransactions);
+router.get(
+  '/myTransactions/:userId',
+  transactionController.getAllUserTransactions
+);
 
 router
   .route('/:trnId')
-  .get(transactionController.getTransaction)
+  .get(transactionController.getOneTransaction)
   .delete(transactionController.deleteTransaction);
 
 module.exports = router;

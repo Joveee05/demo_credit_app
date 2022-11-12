@@ -44,10 +44,10 @@ exports.createAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.getAccount = catchAsync(async (req, res, next) => {
-  let accountId = req.params.accountId;
+  let userId = req.params.userId;
   const account = await knex('accounts')
     .select('id', 'users_id', 'email', 'balance')
-    .where('id', accountId);
+    .where('users_id', userId);
   if (account.length === 0) {
     return next(new AppError('No acount found with that Id', 404));
   }
@@ -154,14 +154,14 @@ exports.withdraw = catchAsync(async (req, res, next) => {
 });
 
 exports.transfer = catchAsync(async (req, res, next) => {
-  const accounts_id = req.params.accountId;
-  const users_id = req.body.users_id;
+  const accounts_id = req.body.accountId;
+  const users_id = req.params.userId;
   const to = req.body.to;
   const amount = req.body.amount;
   const from = req.body.from;
   const transfer = await knex('accounts')
     .where('email', '=', from)
-    .andWhere('id', '=', accounts_id)
+    .andWhere('users_id', '=', users_id)
     .decrement('balance', amount)
     .then(
       await knex('accounts')

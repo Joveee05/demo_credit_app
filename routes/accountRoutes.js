@@ -14,11 +14,9 @@ router.post('/deposit/:accountId', accountController.deposit);
 
 router.post('/withdraw/:accountId', accountController.withdraw);
 
-router.post('/transfer/:accountId', accountController.transfer);
+router.post('/transfer/:userId', accountController.transfer);
 
-router
-  .route('/:accountId')
-  .get(accountController.getAccount)
-  .delete(accountController.deleteAccount);
+router.route('/:userId').get(accountController.getAccount);
+router.delete('/:accountId', accountController.deleteAccount);
 
 module.exports = router;

@@ -2,10 +2,10 @@ const knex = require('../database');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-exports.getTransaction = catchAsync(async (req, res, next) => {
+exports.getOneTransaction = catchAsync(async (req, res, next) => {
   const trnId = req.params.trnId;
   const trn = await knex('transactions')
-    .select('id', 'transactionType', 'account_id', 'amount')
+    .select('id', 'transactionType', 'accounts_id', 'users_id', 'amount')
     .where('id', trnId);
   if (trn.length === 0) {
     return next(new AppError('No transaction found with that Id', 404));
@@ -45,8 +45,8 @@ exports.deleteTransaction = catchAsync(async (req, res, next) => {
 exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const user = await knex('transactions').where('users_id', userId);
-  if (!user) {
-    return next(new AppError('No user transaction  history found', 404));
+  if (user.length === 0) {
+    return next(new AppError('No user transaction history found', 404));
   }
   res.status(200).json({
     status: 'success',

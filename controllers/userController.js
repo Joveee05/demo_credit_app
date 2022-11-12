@@ -19,9 +19,9 @@ exports.getUser = catchAsync(async (req, res, next) => {
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const user = await knex('users').select(
     'id',
+    'email',
     'first_name',
-    'last_name',
-    'balance'
+    'last_name'
   );
   res.status(200).json({
     status: 'success',
@@ -30,7 +30,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
-  const { email, first_name, last_name } = req.body;
+  const { email, firstName, lastName } = req.body;
   let userId = req.params.userId;
   const update = await knex('users').update(req.body).where('id', userId);
   if (!update) {
