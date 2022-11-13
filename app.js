@@ -36,7 +36,7 @@ app.use(cookieParser());
 app.use(xss());
 
 app.get('/', (req, res) => {
-  res.send('Welcome to Lendsqr Demo Credit API');
+  res.send('Welcome to Lendsqr Demo Credit API By Brian Etaghene');
 });
 
 app.use('/api/v1/users/', userRouter);
