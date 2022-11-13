@@ -35,6 +35,10 @@ app.use(cookieParser());
 
 app.use(xss());
 
+app.get('/', (req, res) => {
+  res.send('Welcome to Lendsqr Demo Credit API');
+});
+
 app.use('/api/v1/users/', userRouter);
 app.use('/api/v1/accounts/', accountRouter);
 app.use('/api/v1/transactions/', transactionRouter);
