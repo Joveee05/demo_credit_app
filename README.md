@@ -1,4 +1,4 @@
-# Lendsqr Demo Credit Application
+# Demo Credit Application
 
 ## About
 
@@ -57,7 +57,7 @@ POST /api/v1/accounts/create-account/:userId
 
 ## Link to Hosted API
 
-- [Lendsqr](https://brian-etaghene-lendsqr-be-test.herokuapp.com/)
+- [DemoCredit](https://brian-etaghene-lendsqr-be-test.herokuapp.com/)
 
 ## Example User for Login
 
