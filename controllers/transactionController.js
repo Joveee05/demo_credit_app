@@ -7,7 +7,7 @@ exports.getOneTransaction = catchAsync(async (req, res, next) => {
   const trn = await knex('transactions')
     .select('id', 'transactionType', 'accounts_id', 'users_id', 'amount')
     .where('id', trnId);
-  if (trn.length === 0) {
+  if (trn.length < 1) {
     return next(new AppError('No transaction found with that Id', 404));
   }
   res.status(200).json({
@@ -45,7 +45,7 @@ exports.deleteTransaction = catchAsync(async (req, res, next) => {
 exports.getAllUserTransactions = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const user = await knex('transactions').where('users_id', userId);
-  if (user.length === 0) {
+  if (user.length < 1) {
     return next(new AppError('No user transaction history found', 404));
   }
   res.status(200).json({
