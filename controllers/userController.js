@@ -7,7 +7,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
   const user = await knex('users')
     .select('id', 'email', 'first_name', 'last_name')
     .where('id', userId);
-  if (user.length === 0) {
+  if (user.length < 1) {
     return next(new AppError('No user found with that Id', 404));
   }
   res.status(200).json({
@@ -50,6 +50,6 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   }
   res.status(204).json({
     status: 'success',
-    data: null,
+    message: 'User deleted successfully',
   });
 });
