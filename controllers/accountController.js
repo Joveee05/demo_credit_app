@@ -23,12 +23,12 @@ exports.createAccount = catchAsync(async (req, res, next) => {
   add.email = req.body.email;
   add.users_id = req.params.userId;
   const user = await knex('users')
-    .where('email', '=', req.body.email)
-    .andWhere('id', '=', req.params.userId)
+    .where('email', '=', add.email)
+    .andWhere('id', '=', add.userId)
     .then(async (user) => {
       if (user) {
         await knex('accounts').insert(add);
-        res.status(201).json({
+        return res.status(201).json({
           status: 'success',
           message: 'Account created successfully',
         });
@@ -48,7 +48,7 @@ exports.getAccount = catchAsync(async (req, res, next) => {
   const account = await knex('accounts')
     .select('id', 'users_id', 'email', 'balance')
     .where('users_id', userId);
-  if (account.length === 0) {
+  if (account.length < 1) {
     return next(new AppError('No acount found with that Id', 404));
   }
   res.status(200).json({
@@ -70,20 +70,6 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
     data: accounts,
   });
 });
-
-// This route would be implemented specifically for admins to manually update user account.
-// exports.updateAccount = catchAsync(async (req, res, next) => {
-//   const {} = req.body;
-//   const accountId = req.params.accountId;
-//   const update = await knex('accounts').update(req.body).where('id', accountId);
-//   if (!update) {
-//     return next(new AppError('No account found with that Id', 404));
-//   }
-//   res.status(200).json({
-//     status: 'success',
-//     message: 'Update successful!',
-//   });
-// });
 
 exports.deleteAccount = catchAsync(async (req, res, next) => {
   let accountId = req.params.accountId;
@@ -114,33 +100,23 @@ exports.deposit = catchAsync(async (req, res, next) => {
       users_id
     );
 
-    if (true) {
-      return res.status(200).json({
-        status: 'success',
-        message: 'Deposit successful',
-      });
-    } else {
-      return next(new AppError('Something went wrong', 400));
-    }
+    res.status(200).json({
+      status: 'success',
+      message: 'Deposit successful',
+    });
   }
 });
 
 exports.withdraw = catchAsync(async (req, res, next) => {
   const accounts_id = req.params.accountId;
   const amount = req.body.amount;
-  const users_id = req.body.users_id;
   const debitAccount = await knex('accounts')
     .where('id', '=', accounts_id)
     .decrement('balance', amount);
   if (!debitAccount) {
     return next(new AppError('No account found with the provided Id', 404));
   } else {
-    await insertDataIntoTransactionsTable(
-      'debit',
-      amount,
-      accounts_id,
-      users_id
-    );
+    await insertDataIntoTransactionsTable('debit', amount, accounts_id);
 
     if (true) {
       return res.status(200).json({
