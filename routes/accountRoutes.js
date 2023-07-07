@@ -17,6 +17,7 @@ router.post('/withdraw/:accountId', accountController.withdraw);
 router.post('/transfer/:userId', accountController.transfer);
 
 router.route('/:userId').get(accountController.getAccount);
+
 router.delete('/:accountId', accountController.deleteAccount);
 
 module.exports = router;
